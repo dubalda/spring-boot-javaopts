@@ -1,0 +1,17 @@
+FROM maven:3.6.3-openjdk-14 AS build
+
+COPY pom.xml .
+COPY ./src /src
+
+RUN ls -l && \
+    ls -l /src && \
+    mvn clean install && \
+    ls -lh
+
+FROM openjdk:14.0.2-jdk-buster
+
+COPY entrypoint.sh /
+COPY --from=build /target/example*.jar javaopts.jar
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["java", "-jar", "/javaopts.jar"]
